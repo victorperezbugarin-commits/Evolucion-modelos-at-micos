@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>El Enigma del Átomo: De la Idea Filosófica a la Teoría de Dalton | Física e química 2.º ESO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-quantum: #0d0b1e;
+      --panel-bg: rgba(21, 19, 44, 0.94);
+      --panel-card: rgba(14, 12, 33, 0.85);
+      --accent-turquoise: #00f5d4;
+      --accent-purple: #9b5de5;
+      --accent-amber: #fee440;
+      --accent-pink: #f15bb5;
+      --text-lab: #f1faee;
+      --text-muted: #c8d3e6;
+      --border-glow: rgba(0, 245, 212, 0.45);
+      --purple-glow: rgba(155, 93, 229, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      min-height: 100%;
+      background-color: var(--bg-quantum);
+      color: var(--text-lab);
+      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    /* Fondo hexagonal de enlaces moleculares */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.24;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='208' viewBox='0 0 120 208'%3E%3Cg fill='none' stroke='%239b5de5' stroke-width='1.1'%3E%3Cpolygon points='60,4 116,36 116,100 60,132 4,100 4,36'/%3E%3Cpolygon points='60,108 116,140 116,204 60,236 4,204 4,140'/%3E%3Cline x1='60' y1='4' x2='60' y2='0'/%3E%3Cline x1='116' y1='36' x2='120' y2='34'/%3E%3Cline x1='4' y1='36' x2='0' y2='34'/%3E%3Ccircle cx='60' cy='4' r='2.5' fill='%2300f5d4' stroke='none'/%3E%3Ccircle cx='116' cy='36' r='2.5' fill='%23f15bb5' stroke='none'/%3E%3Ccircle cx='116' cy='100' r='2.5' fill='%2300f5d4' stroke='none'/%3E%3Ccircle cx='60' cy='132' r='2.5' fill='%23fee440' stroke='none'/%3E%3Ccircle cx='4' cy='100' r='2.5' fill='%2300f5d4' stroke='none'/%3E%3Ccircle cx='4' cy='36' r='2.5' fill='%23f15bb5' stroke='none'/%3E%3C/g%3E%3C/svg%3E");
+      background-size: 120px 208px;
+    }
+
+    /* Viñeta radial de laboratorio cuántico */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 18% 15%, rgba(155, 93, 229, 0.22), transparent 45%),
+        radial-gradient(circle at 82% 85%, rgba(0, 245, 212, 0.16), transparent 48%),
+        radial-gradient(circle at 50% 50%, transparent 45%, rgba(7, 6, 18, 0.82) 100%);
+    }
+
+    /* Canvas 3D fijo a pantalla completa */
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      display: block;
+      pointer-events: none;
+    }
+
+    /* Contenedor exterior para centrado cómodo en proyección de aula */
+    .viewport-wrapper {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.2rem 1.25rem;
+    }
+
+    /* Panel central (.container) */
+    .container {
+      width: 100%;
+      max-width: 1180px;
+      background: var(--panel-bg);
+      border: 2px solid var(--accent-turquoise);
+      border-radius: 22px;
+      padding: 2.4rem 2.6rem;
+      box-shadow:
+        0 0 38px rgba(0, 245, 212, 0.22),
+        0 0 70px rgba(155, 93, 229, 0.26),
+        inset 0 0 28px rgba(155, 93, 229, 0.14);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-purple), var(--accent-turquoise), var(--accent-amber), var(--accent-pink), var(--accent-turquoise));
+    }
+
+    /* Encabezado (<header>) */
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(155, 93, 229, 0.35);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--accent-turquoise);
+      background: rgba(0, 245, 212, 0.1);
+      border: 1px solid rgba(0, 245, 212, 0.4);
+      padding: 0.42rem 1rem;
+      border-radius: 999px;
+      margin-bottom: 1.1rem;
+      text-transform: uppercase;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: var(--accent-turquoise);
+      box-shadow: 0 0 10px var(--accent-turquoise), 0 0 18px var(--accent-turquoise);
+      animation: pulseDot 1.6s infinite ease-in-out;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.38);
+        opacity: 0.45;
+      }
+    }
+
+    h1 {
+      font-family: 'Exo 2', sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.75rem, 3.2vw, 2.65rem);
+      line-height: 1.18;
+      color: var(--accent-turquoise);
+      text-shadow: 0 0 22px rgba(0, 245, 212, 0.35);
+      margin-bottom: 0.6rem;
+      letter-spacing: -0.01em;
+    }
+
+    h2 {
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-weight: 600;
+      font-size: clamp(1rem, 1.6vw, 1.2rem);
+      color: var(--accent-amber);
+      letter-spacing: 0.02em;
+    }
+
+    .curriculum-badges {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.55rem;
+      margin-top: 0.9rem;
+    }
+
+    .badge-mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 0.28rem 0.72rem;
+      border-radius: 6px;
+      background: rgba(155, 93, 229, 0.16);
+      border: 1px solid rgba(155, 93, 229, 0.45);
+      color: var(--text-lab);
+    }
+
+    .badge-mono span {
+      color: var(--accent-pink);
+      font-weight: 700;
+    }
+
+    /* Mapa de progreso de la misión (.mission-track) */
+    .mission-track-wrapper {
+      background: rgba(12, 10, 28, 0.86);
+      border: 1px solid rgba(155, 93, 229, 0.45);
+      border-radius: 16px;
+      padding: 1.35rem 1rem;
+      margin-bottom: 2rem;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.45);
+    }
+
+    .track-header-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-purple);
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .mission-track {
+      display: flex;
+      align-items: stretch;
+      justify-content: space-between;
+      gap: 0.35rem;
+      overflow-x: auto;
+      padding-bottom: 0.35rem;
+    }
+
+    .world-node {
+      flex: 1 1 0;
+      min-width: 148px;
+      background: linear-gradient(160deg, rgba(28, 24, 58, 0.95), rgba(16, 14, 38, 0.95));
+      border: 1.5px solid rgba(0, 245, 212, 0.45);
+      border-radius: 14px;
+      padding: 0.85rem 0.65rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .world-node:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent-turquoise);
+      box-shadow: 0 6px 20px rgba(0, 245, 212, 0.2);
+    }
+
+    .world-node.reward-node {
+      border-color: var(--accent-amber);
+      background: linear-gradient(160deg, rgba(52, 41, 22, 0.65), rgba(24, 18, 46, 0.95));
+      box-shadow: 0 0 18px rgba(254, 228, 64, 0.16);
+    }
+
+    .world-node.reward-node:hover {
+      border-color: var(--accent-amber);
+      box-shadow: 0 6px 22px rgba(254, 228, 64, 0.32);
+    }
+
+    .node-circle {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(0, 245, 212, 0.12);
+      border: 2px solid var(--accent-turquoise);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.55rem;
+      box-shadow: 0 0 14px rgba(0, 245, 212, 0.25);
+      flex-shrink: 0;
+    }
+
+    .reward-node .node-circle {
+      background: rgba(254, 228, 64, 0.16);
+      border-color: var(--accent-amber);
+      box-shadow: 0 0 16px rgba(254, 228, 64, 0.35);
+    }
+
+    .node-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--accent-turquoise);
+      margin-bottom: 0.25rem;
+    }
+
+    .reward-node .node-tag {
+      color: var(--accent-amber);
+    }
+
+    .node-title {
+      font-size: 0.79rem;
+      font-weight: 600;
+      line-height: 1.3;
+      color: var(--text-lab);
+    }
+
+    .track-lock {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0.35rem 0.25rem;
+      min-width: 72px;
+      text-align: center;
+      position: relative;
+    }
+
+    .lock-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(241, 91, 181, 0.14);
+      border: 1.5px solid var(--accent-pink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 12px rgba(241, 91, 181, 0.28);
+      margin-bottom: 0.3rem;
+    }
+
+    .lock-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--accent-amber);
+    }
+
+    .lock-arrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--accent-pink);
+      margin-top: 0.15rem;
+    }
+
+    /* Sección narrativa de bienvenida (.content-section) */
+    .content-section {
+      margin-bottom: 1.8rem;
+    }
+
+    .intro-lead {
+      font-size: 1.08rem;
+      color: var(--text-lab);
+      margin-bottom: 1.35rem;
+      background: rgba(155, 93, 229, 0.1);
+      border-left: 4px solid var(--accent-turquoise);
+      padding: 1rem 1.25rem;
+      border-radius: 0 12px 12px 0;
+    }
+
+    .intro-lead strong {
+      color: var(--accent-turquoise);
+    }
+
+    .worlds-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.1rem;
+    }
+
+    .world-card {
+      background: var(--panel-card);
+      border: 1px solid rgba(155, 93, 229, 0.42);
+      border-radius: 14px;
+      padding: 1.15rem 1.25rem;
+      transition: border-color 0.25s ease, transform 0.25s ease;
+    }
+
+    .world-card:hover {
+      border-color: var(--accent-turquoise);
+      transform: translateY(-2px);
+    }
+
+    .world-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.45rem;
+    }
+
+    .world-card-step {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--accent-amber);
+      background: rgba(254, 228, 64, 0.12);
+      border: 1px solid rgba(254, 228, 64, 0.35);
+      padding: 0.18rem 0.55rem;
+      border-radius: 6px;
+    }
+
+    .world-card-ca {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--accent-pink);
+      font-weight: 700;
+    }
+
+    .world-card h3 {
+      font-family: 'Exo 2', sans-serif;
+      font-weight: 700;
+      font-size: 1.03rem;
+      color: var(--accent-turquoise);
+      margin-bottom: 0.45rem;
+      line-height: 1.3;
+    }
+
+    .world-card p {
+      font-size: 0.94rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* Cuadro destacado de aviso (.highlight-box) */
+    .highlight-box {
+      background: linear-gradient(135deg, rgba(241, 91, 181, 0.14), rgba(254, 228, 64, 0.1));
+      border: 1.5px solid var(--accent-amber);
+      border-left: 6px solid var(--accent-pink);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.9rem;
+      box-shadow: 0 0 24px rgba(241, 91, 181, 0.16);
+    }
+
+    .highlight-box-title {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: 'Exo 2', sans-serif;
+      font-size: 1.12rem;
+      font-weight: 800;
+      color: var(--accent-amber);
+      margin-bottom: 0.55rem;
+    }
+
+    .highlight-box p {
+      font-size: 0.98rem;
+      color: var(--text-lab);
+      margin-bottom: 0.65rem;
+    }
+
+    .highlight-box p:last-child {
+      margin-bottom: 0;
+      color: var(--accent-turquoise);
+      font-size: 1.03rem;
+    }
+
+    /* Fila de 4 iconos temáticos (.component-row) */
+    .component-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2.1rem;
+    }
+
+    .component-item {
+      background: rgba(14, 12, 33, 0.85);
+      border: 1px solid rgba(0, 245, 212, 0.3);
+      border-radius: 12px;
+      padding: 0.95rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 0.5rem;
+      transition: border-color 0.25s ease, background 0.25s ease;
+    }
+
+    .component-item:hover {
+      border-color: var(--accent-pink);
+      background: rgba(28, 22, 58, 0.92);
+    }
+
+    .component-keyword {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--text-lab);
+      text-transform: uppercase;
+    }
+
+    /* Acción principal (.btn-entrar) */
+    .cta-zone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn-entrar {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.85rem;
+      font-family: 'Exo 2', sans-serif;
+      font-weight: 800;
+      font-size: 1.3rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: #0d0b1e;
+      background: linear-gradient(135deg, #00f5d4 0%, #38f9d7 55%, #fee440 100%);
+      padding: 1.05rem 3.1rem;
+      border-radius: 999px;
+      border: 2px solid #ffffff;
+      box-shadow:
+        0 0 26px rgba(0, 245, 212, 0.65),
+        0 0 52px rgba(155, 93, 229, 0.45);
+      transition: transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
+      cursor: pointer;
+    }
+
+    .btn-entrar:hover,
+    .btn-entrar:focus-visible {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow:
+        0 0 36px rgba(0, 245, 212, 0.9),
+        0 0 68px rgba(254, 228, 64, 0.55);
+      filter: brightness(1.06);
+      outline: none;
+    }
+
+    .btn-entrar:active {
+      transform: translateY(0) scale(0.99);
+    }
+
+    .btn-entrar svg {
+      transition: transform 0.22s ease;
+    }
+
+    .btn-entrar:hover svg {
+      transform: translateX(5px);
+    }
+
+    .classroom-hint {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* Adaptación responsiva */
+    @media (max-width: 980px) {
+      .container {
+        padding: 1.75rem 1.4rem;
+      }
+
+      .worlds-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .mission-track {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .world-node {
+        flex: 1 1 200px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .component-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .btn-entrar {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        font-size: 1.15rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Escena 3D interactiva de fondo con Three.js -->
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+  <div class="viewport-wrapper">
+    <main class="container">
+      <!-- ENCABEZADO -->
+      <header>
+        <div class="eyebrow">
+          <span class="dot" aria-hidden="true"></span>
+          <span>SIMULACIÓN INTERACTIVA · 4 MUNDOS VIRTUALES + RECOMPENSA</span>
+        </div>
+        <h1>El Enigma del Átomo: De la Idea Filosófica a la Teoría de Dalton</h1>
+        <h2>Física e química | 2.º de ESO. (Educación Secundaria Obligatoria (ESO))</h2>
+        <div class="curriculum-badges" aria-label="Referencia curricular">
+          <span class="badge-mono"><span>TEMA:</span> Evolución histórica do concepto de átomo, de Demócrito a Dalton.</span>
+          <span class="badge-mono"><span>UD 1 &amp; UD 2:</span> Metodoloxía científica · Constitución interna da materia</span>
+          <span class="badge-mono"><span>ENFOQUE:</span> DUA · Proxección colectiva na aula</span>
+        </div>
+      </header>
+
+      <!-- MAPA DE PROGRESO DE LA MISIÓN -->
+      <section class="mission-track-wrapper" aria-label="Mapa de progreso de la misión">
+        <div class="track-header-label">Ruta secuencial de la expedición científica · Desbloqueo por cuestionarios puente</div>
+        <div class="mission-track">
+          <!-- Mundo 1 -->
+          <div class="world-node">
+            <div class="node-circle" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#00f5d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="2.5" fill="#fee440" stroke="none"/>
+                <ellipse cx="12" cy="12" rx="10" ry="4.2" transform="rotate(30 12 12)"/>
+                <ellipse cx="12" cy="12" rx="10" ry="4.2" transform="rotate(-30 12 12)"/>
+                <ellipse cx="12" cy="12" rx="10" ry="4.2" transform="rotate(90 12 12)"/>
+              </svg>
+            </div>
+            <div class="node-tag">MUNDO 1 (1 de 4)</div>
+            <div class="node-title">Mundo 1 · El Enigma del Átomo: De la Idea Filosófica a la Teoría de Dalton</div>
+          </div>
+
+          <!-- Candado 1 -->
+          <div class="track-lock" title="Cuestionario Puente 1">
+            <div class="lock-badge" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fee440" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="11" width="16" height="10" rx="2" fill="rgba(254,228,64,0.18)"/>
+                <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+                <circle cx="12" cy="16" r="1.3" fill="#f15bb5" stroke="none"/>
+              </svg>
+            </div>
+            <span class="lock-label">Cuestionario Puente 1</span>
+            <span class="lock-arrow" aria-hidden="true">───▶</span>
+          </div>
+
+          <!-- Mundo 2 -->
+          <div class="world-node">
+            <div class="node-circle" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#00f5d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3v18"/>
+                <path d="M5 7h14"/>
+                <path d="M5 7l-3 6h6l-3-6z" fill="rgba(241,91,181,0.25)"/>
+                <path d="M19 7l-3 6h6l-3-6z" fill="rgba(254,228,64,0.25)"/>
+                <path d="M8 21h8"/>
+              </svg>
+            </div>
+            <div class="node-tag">MUNDO 2 (2 de 4)</div>
+            <div class="node-title">Mundo 2 · Del Alambique a la Balanza: El Camino Experimental hacia el Átomo</div>
+          </div>
+
+          <!-- Candado 2 -->
+          <div class="track-lock" title="Cuestionario Puente 2">
+            <div class="lock-badge" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fee440" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="11" width="16" height="10" rx="2" fill="rgba(254,228,64,0.18)"/>
+                <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+                <circle cx="12" cy="16" r="1.3" fill="#f15bb5" stroke="none"/>
+              </svg>
+            </div>
+            <span class="lock-label">Cuestionario Puente 2</span>
+            <span class="lock-arrow" aria-hidden="true">───▶</span>
+          </div>
+
+          <!-- Mundo 3 -->
+          <div class="world-node">
+            <div class="node-circle" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#00f5d4" stroke-width="2">
+                <circle cx="8" cy="14" r="4.5" fill="rgba(0,245,212,0.25)"/>
+                <circle cx="16" cy="14" r="4.5" fill="rgba(155,93,229,0.35)"/>
+                <circle cx="12" cy="7.5" r="4" fill="rgba(254,228,64,0.3)"/>
+              </svg>
+            </div>
+            <div class="node-tag">MUNDO 3 (3 de 4)</div>
+            <div class="node-title">Mundo 3 · John Dalton y los Ladrillos Invisibles de la Materia</div>
+          </div>
+
+          <!-- Candado 3 -->
+          <div class="track-lock" title="Cuestionario Puente 3">
+            <div class="lock-badge" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fee440" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="11" width="16" height="10" rx="2" fill="rgba(254,228,64,0.18)"/>
+                <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+                <circle cx="12" cy="16" r="1.3" fill="#f15bb5" stroke="none"/>
+              </svg>
+            </div>
+            <span class="lock-label">Cuestionario Puente 3</span>
+            <span class="lock-arrow" aria-hidden="true">───▶</span>
+          </div>
+
+          <!-- Mundo 4 -->
+          <div class="world-node">
+            <div class="node-circle" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#00f5d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <polygon points="15.5 8.5 13.5 13.5 8.5 15.5 10.5 10.5 15.5 8.5" fill="#f15bb5" stroke="#fee440" stroke-width="1.4"/>
+              </svg>
+            </div>
+            <div class="node-tag">MUNDO 4 (4 de 4)</div>
+            <div class="node-title">Mundo 4 · De Demócrito a Dalton: Huellas de un Viaje Científico</div>
+          </div>
+
+          <!-- Candado 4 -->
+          <div class="track-lock" title="Cuestionario Puente 4">
+            <div class="lock-badge" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fee440" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="11" width="16" height="10" rx="2" fill="rgba(254,228,64,0.18)"/>
+                <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+                <circle cx="12" cy="16" r="1.3" fill="#f15bb5" stroke="none"/>
+              </svg>
+            </div>
+            <span class="lock-label">Cuestionario Puente 4</span>
+            <span class="lock-arrow" aria-hidden="true">───▶</span>
+          </div>
+
+          <!-- Nodo Final: Página de Recompensa -->
+          <div class="world-node reward-node">
+            <div class="node-circle" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fee440" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 4h12v5a6 6 0 0 1-12 0V4z" fill="rgba(254,228,64,0.28)"/>
+                <path d="M6 6H3v2a3 3 0 0 0 3 3"/>
+                <path d="M18 6h3v2a3 3 0 0 1-3 3"/>
+                <path d="M12 15v4"/>
+                <path d="M8 21h8"/>
+              </svg>
+            </div>
+            <div class="node-tag">META FINAL</div>
+            <div class="node-title">🏆 Página de Recompensa</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TEXTO NARRATIVO DE BIENVENIDA -->
+      <section class="content-section" aria-label="Descripción de la misión de aprendizaje">
+        <p class="intro-lead">
+          ¡Bienvenidos al laboratorio virtual de <strong>Física e química de 2.º de ESO</strong>! Hoy iniciamos una expedición científica para resolver uno de los mayores misterios de la naturaleza: <strong>«Evolución histórica do concepto de átomo, de Demócrito a Dalton.»</strong> ¿De qué está hecha realmente toda la materia que nos rodea? Si cortáramos un trozo de oro o una gota de agua millones de veces, ¿llegaríamos a una pieza imposible de dividir? A lo largo de <strong>4 mundos virtuales secuenciales</strong> viajaréis desde la Grecia clásica hasta los laboratorios modernos de pesada química para descubrir cómo una idea filosófica se convirtió en una teoría científica comprobada:
+        </p>
+
+        <div class="worlds-grid">
+          <article class="world-card">
+            <div class="world-card-header">
+              <span class="world-card-step">MUNDO 1 · 1 DE 4</span>
+              <span class="world-card-ca">CA2.1 · CA2.3 · CA2.4 · CA1.9</span>
+            </div>
+            <h3>El Enigma del Átomo: De la Idea Filosófica a la Teoría de Dalton</h3>
+            <p>
+              Comprenderéis el origen histórico del concepto de <em>átomo</em> como partícula indivisible frente a la visión continua de la materia defendida durante siglos, identificando la transición desde la reflexión filosófica de Demócrito y Leucipo hasta la formulación de la teoría atómica de Dalton.
+            </p>
+          </article>
+
+          <article class="world-card">
+            <div class="world-card-header">
+              <span class="world-card-step">MUNDO 2 · 2 DE 4</span>
+              <span class="world-card-ca">CA1.1 · CA1.9 · CA2.3 · CA5.1</span>
+            </div>
+            <h3>Del Alambique a la Balanza: El Camino Experimental hacia el Átomo</h3>
+            <p>
+              Reconoceréis cómo la introducción de la experimentación en el laboratorio, la medida rigurosa de la masa con la balanza y el análisis cuantitativo de las reacciones químicas transformaron el estudio de las sustancias y sentaron las bases para retomar la idea atómica.
+            </p>
+          </article>
+
+          <article class="world-card">
